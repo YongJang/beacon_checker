@@ -1,2 +1,2 @@
 # beacon_checker
-Hyundai elevator beacon checker
+A beacon checker
