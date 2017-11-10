@@ -1,6 +1,9 @@
 <?php
-require dirname(__FILE__) . 'config/config.php';
-  
+require './config/config.php';
+
+$db_manager = new DBMaria();
+
+
 ?>
 
 <!DOCTYPE html>
