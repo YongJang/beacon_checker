@@ -16,23 +16,5 @@ class DB {
 		'notnull' => 'is not null',
 		'null' => 'is null',
 	);
-
-  function _setDBInfo() {
-    print('hello' . '<br>');
-    if(file_exists('./DBInitial.php')) {
-      print('hi'. '<br>');
-      require 'DBInitial.php';
-      print($DB_DNS_NAME . '<br>');
-      $db_dns = $DB_DNS_NAME;
-      $db_port_num = $DB_PORT_NUM;
-      $db_root_id = $DB_ROOT_ID;
-      $db_root_pwd = $DB_ROOT_PWD;
-      $db_name = $DB_NAME;
-    }
-  }
-
-  function printDBInfo() {
-    print('db_dns = ' . $dbdns . '<br>');
-  }
 }
 ?>

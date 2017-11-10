@@ -2,8 +2,7 @@
 require './config/config.php';
 
 $db_manager = new DBMaria();
-
-
+$db_manager->checkDBTableSet();
 ?>
 
 <!DOCTYPE html>
