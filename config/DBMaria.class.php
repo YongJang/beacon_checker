@@ -51,8 +51,9 @@ class DBMaria extends DB {
     *  create beacondetect table if it is not exist
     */
     $result_exist = mysqli_query("SHOW TABLES LIKE 'beacondetect'");
+    $data = NULL;
     $data = mysqli_fetch_array($result_exist);
-    if($data == true) { // if table is exist
+    if($data) { // if table is exist
       echo "<br>table is exist<br>";
     } else {  // if table is not exist
       echo "<br>table is not exist<br>";
@@ -63,6 +64,14 @@ class DBMaria extends DB {
       )');
       $data = mysqli_fetch_array($result_createTable);
     }
+  }
+
+  function _insertBeaconDetect($data) {
+
+  }
+
+  function detectBeacon($data) {
+    
   }
 }
 ?>
