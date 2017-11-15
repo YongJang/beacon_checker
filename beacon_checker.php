@@ -1,14 +1,8 @@
 <?php
-
-header("Content-Type: application/json; charset=UTF-8");
-
 require './config/config.php';
 
 $db_manager = new DBMaria();
 $db_manager->checkDBTableSet();
-
-$detectBeaconJSON = json_decode($_POST["beaconData"]);
-$db_manager->detectBeacon($detectBeaconJSON);
 
 ?>
 

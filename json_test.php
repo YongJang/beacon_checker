@@ -23,7 +23,5 @@ $string = "INSERT INTO ".(string)$obj->table." VALUES ('".$obj->name."',".$obj->
 $result = mysqli_query($db, $string);
 $outp = array();
 $outp = mysqli_fetch_row($result);
-echo "!@#".$outp."!@#";
-
 echo json_encode($outp);
 ?>

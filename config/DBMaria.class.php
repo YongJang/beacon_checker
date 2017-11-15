@@ -66,12 +66,35 @@ class DBMaria extends DB {
     }
   }
 
-  function _insertBeaconDetect($data) {
-
-  }
-
   function detectBeacon($data) {
-    
+    $query = "SELECT * FROM beacondetect WHERE beacon_no = ".$data->beacon_no.";";
+    $result = mysqli_query($this->db, $query);
+    $row_cnt = mysqli_num_rows($result);
+    if (!$row_cnt) {
+      error_log("TEST : inner if statement".$row_cnt);
+      $this->_insertBeaconDetect($data);
+    } else {
+      error_log("TEST : inner else statement".$row_cnt);
+    }
+
   }
+
+  function _insertBeaconDetect($data) {
+    $query = "INSERT INTO ".$data->table." VALUES ('".$data->beacon_no."', 1, NOW());";
+    $result = mysqli_query($this->db, $query);
+
+    if(!$result) {
+      error_log("ERROR : _insertBeaconDetect()");
+    }
+  }
+
+  function getBeaconDetect() {
+    $query = "SELECT * from beacondetect;";
+    $result = mysqli_query($this->db, $query);
+    $row = mysqli_fetch_assoc($result);
+    return $row;
+  }
+
+
 }
 ?>
