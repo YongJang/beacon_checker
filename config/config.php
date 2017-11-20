@@ -1,5 +1,5 @@
 <?php
-
+date_default_timezone_set('Asia/Seoul');
 ini_set("log_errors", 1);
 ini_set("error_log", "./beaconchecker-error.log");
 error_log("LOG : START");

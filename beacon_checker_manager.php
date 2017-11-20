@@ -1,7 +1,5 @@
 <?php
-
 header("Content-Type: application/json; charset=UTF-8");
-
 require './config/config.php';
 
 $db_manager = new DBMaria();

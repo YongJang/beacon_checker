@@ -23,14 +23,15 @@ class DBMaria extends DB {
     $this->db = mysqli_connect($DB_DNS_NAME . ":" . $DB_PORT_NUM, $DB_ROOT_ID, $DB_ROOT_PWD, $DB_NAME);
 
     if($this->db) {
-      echo "connect : 성공<br>";
+
     } else {
-      echo "disconnect : 실패<br>";
+      error_log("ERROR : _connect() can not connect DBMS");
+      die("Connection error : ".mysqli_connect_errno());
     }
 
     $result = mysqli_query($this->db, 'SELECT VERSION() as VERSION');
     $data = mysqli_fetch_assoc($result);
-    echo $data['VERSION'];
+    error_log($data['VERSION']);
 
   }
 
@@ -44,19 +45,16 @@ class DBMaria extends DB {
     /**
     *  Use Beaconchecker database
     */
-    $result_useBC = mysqli_query($this->db, 'USE BEACONCHECKER');
-    $data = mysqli_fetch_assoc($result_useBC);
+    mysqli_select_db($this->db, 'BEACONCHECKER');
 
     /**
-    *  create beacondetect table if it is not exist
+    *  Create beacondetect table if it is not exist
     */
     $result_exist = mysqli_query("SHOW TABLES LIKE 'beacondetect'");
-    $data = NULL;
     $data = mysqli_fetch_array($result_exist);
     if($data) { // if table is exist
-      echo "<br>table is exist<br>";
+
     } else {  // if table is not exist
-      echo "<br>table is not exist<br>";
       $result_createTable = mysqli_query($this->db, 'CREATE TABLE BEACONDETECT (
         beacon_no INT not NULL PRIMARY KEY,
         detect_cnt BIGINT unsigned,
@@ -67,20 +65,28 @@ class DBMaria extends DB {
   }
 
   function detectBeacon($data) {
-    $query = "SELECT * FROM beacondetect WHERE beacon_no = ".$data->beacon_no.";";
+    $query = "SELECT * FROM beacondetect WHERE beacon_no = ".$data->beacon_no;
     $result = mysqli_query($this->db, $query);
     $row_cnt = mysqli_num_rows($result);
-    if (!$row_cnt) {
-      error_log("TEST : inner if statement".$row_cnt);
+    if(!$row_cnt) {
       $this->_insertBeaconDetect($data);
     } else {
-      error_log("TEST : inner else statement".$row_cnt);
+      $query = "UPDATE beacondetect SET detect_cnt = detect_cnt + 1, lastdetect = NOW() WHERE beacon_no = ".$data->beacon_no;
+      $result = mysqli_query($this->db, $query);
+      $row = mysqli_num_rows($result);
+      if($row) {
+        error_log("ERROR : detectBeacon() can not update query");
+      }
     }
 
   }
 
   function _insertBeaconDetect($data) {
-    $query = "INSERT INTO ".$data->table." VALUES ('".$data->beacon_no."', 1, NOW());";
+    $query = sprintf(
+      "INSERT INTO %s VALUES ('%s', 1, NOW())",
+      $data->table,
+      $data->beacon_no
+    );
     $result = mysqli_query($this->db, $query);
 
     if(!$result) {
@@ -88,13 +94,27 @@ class DBMaria extends DB {
     }
   }
 
-  function getBeaconDetect() {
-    $query = "SELECT * from beacondetect;";
+  function getBeaconDetect($pivot="beacon_no", $order="ASC", $beacon_no=NULL) {
+    if(!$beacon_no) {
+      $query = "SELECT * FROM beacondetect ORDER BY ".$pivot." ".$order;
+    } else {
+      $query = "SELECT * FROM beacondetect WHERE beacon_no = ".$beacon_no." ORDER BY ".$pivot." ".$order;
+    }
     $result = mysqli_query($this->db, $query);
-    $row = mysqli_fetch_assoc($result);
-    return $row;
+    $out = array();
+
+    while($row = mysqli_fetch_array($result)) {
+      array_push($out, $row);
+    }
+
+  //  $out[] = $row;
+
+    if(count($out) == 0) {
+      error_log("ERROR : getBeaconDetect() No element in the beacondetect table.");
+    } else {
+      echo $out['beacon_no'];
+      return $out;
+    }
   }
-
-
 }
 ?>
