@@ -62,6 +62,23 @@ class DBMaria extends DB {
       )');
       $data = mysqli_fetch_array($result_createTable);
     }
+
+    /**
+    *  Create beaconposition table if it is not exist
+    */
+    $result_exist = mysqli_query("SHOW TABLES LIKE 'beaconposition'");
+    $data = mysqli_fetch_array($result_exist);
+    if($data) { // if table is exist
+
+    } else {  // if table is not exist
+      $result_createTable = mysqli_query($this->db, 'CREATE TABLE BEACONPOSITION (
+        beacon_no INT not NULL PRIMARY KEY,
+        file_id VARCHAR(50) not NULL,
+        pos_x INT not NULL,
+        pos_y INT not NULL
+      )');
+      $data = mysqli_fetch_array($result_createTable);
+    }
   }
 
   function detectBeacon($data) {

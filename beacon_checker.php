@@ -35,7 +35,7 @@ $detectBeaconData = $db_manager->getBeaconDetect("beacon_no", "ASC");
             <ul class="sidebar-nav">
                 <li class="sidebar-brand">
                     <a href="?">
-                        Show All
+                        Dashboard
                     </a>
                 </li>
                 <?php
@@ -43,9 +43,6 @@ $detectBeaconData = $db_manager->getBeaconDetect("beacon_no", "ASC");
                     echo "<li><a href=\"?beacon_no={$detectBeaconData[$i]['beacon_no']}\">".htmlspecialchars($detectBeaconData[$i]['beacon_no'])."</a></li>";
                   }
                 ?>
-                <li>
-                    <a href="#">Dashboard</a>
-                </li>
             </ul>
         </div>
         <!-- /#sidebar-wrapper -->
@@ -54,33 +51,27 @@ $detectBeaconData = $db_manager->getBeaconDetect("beacon_no", "ASC");
         <div id="page-content-wrapper">
             <div class="container-fluid">
                 <h1>Hyundai Elevator Beacon Checker</h1>
+                <table>
+                  <tr>
+                    <td style='padding-right:30px'><strong>Beacon Number</strong></td>
+                    <td style='padding-right:30px'><strong>Detect Count</strong></td>
+                    <td style='padding-right:30px'><strong>Last Detect Time</strong></td>
+                  </tr>
                 <?php
                   $beacon_no = $_GET['beacon_no'];
                   if(!$beacon_no) {
-                    echo "<table>
-                      <tr>
-                        <td><strong>Beacon Number</strong></td>
-                        <td><strong>Detect Count</strong></td>
-                        <td><strong>Last Detect Time</strong></td>
-                      </tr> ";
+
                       for($i = 0; $i < count($detectBeaconData); $i++) {
                         echo "<tr><td id='content-table'><a href=\"?beacon_no={$detectBeaconData[$i]['beacon_no']}\">".htmlspecialchars($detectBeaconData[$i]['beacon_no'])."</a></td id='content-table'><td>".htmlspecialchars($detectBeaconData[$i]['detect_cnt'])."</td><td id='content-table'>".htmlspecialchars($detectBeaconData[$i]['lastdetect'])."</td></tr>";
                       }
-                    echo "</table>";
                   } else {
                     $detectBeaconData = $db_manager->getBeaconDetect("beacon_no", "ASC", $beacon_no);
-                    echo "<table>
-                      <tr>
-                        <td><strong>Beacon Number</strong></td>
-                        <td><strong>Detect Count</strong></td>
-                        <td><strong>Last Detect Time</strong></td>
-                      </tr> ";
                       for($i = 0; $i < count($detectBeaconData); $i++) {
                         echo "<tr><td id='content-table'><a href=\"?beacon_no={$detectBeaconData[$i]['beacon_no']}\">".htmlspecialchars($detectBeaconData[$i]['beacon_no'])."</a></td><td id='content-table'>".htmlspecialchars($detectBeaconData[$i]['detect_cnt'])."</td><td id='content-table'>".htmlspecialchars($detectBeaconData[$i]['lastdetect'])."</td></tr>";
                       }
-                    echo "</table>";
                   }
                 ?>
+                </table>
                 <p></p>
                 <a href="#menu-toggle" class="btn btn-secondary" id="menu-toggle">Beacon Menu</a>
             </div>
