@@ -8,10 +8,6 @@ body {
   overflow-x: hidden;
 }
 
-table {
-  border: 1px;
-}
-
 #wrapper {
   padding-left: 0;
   -webkit-transition: all 0.5s ease;

@@ -2,7 +2,7 @@
 require './config/config.php';
 $db_manager = new DBMaria();
 $db_manager->checkDBTableSet();
-$detectBeaconData = $db_manager->getBeaconDetect("beacon_no", "ASC");
+
 # echo "\n".$detectBeaconData[0]['beacon_no']."\n";
 ?>
 
@@ -39,6 +39,7 @@ $detectBeaconData = $db_manager->getBeaconDetect("beacon_no", "ASC");
                     </a>
                 </li>
                 <?php
+                  $detectBeaconData = $db_manager->getBeaconDetect();
                   for($i = 0; $i < count($detectBeaconData); $i++) {
                     echo "<li><a href=\"?beacon_no={$detectBeaconData[$i]['beacon_no']}\">".htmlspecialchars($detectBeaconData[$i]['beacon_no'])."</a></li>";
                   }
@@ -53,12 +54,56 @@ $detectBeaconData = $db_manager->getBeaconDetect("beacon_no", "ASC");
                 <h1>Hyundai Elevator Beacon Checker</h1>
                 <table>
                   <tr>
-                    <td style='padding-right:30px'><strong>Beacon Number</strong></td>
-                    <td style='padding-right:30px'><strong>Detect Count</strong></td>
-                    <td style='padding-right:30px'><strong>Last Detect Time</strong></td>
+                    <?php
+                      $beacon_no = $_GET['beacon_no'];
+                      if(!$beacon_no) {
+                        $pivot = $_GET['pivot'];
+                        $order = $_GET['order'];
+                        $order_reverse;
+
+                        if(!$pivot && !$order) {
+                          $pivot = 'beacon_no';
+                          $order = 'ASC';
+                          $order_reverse = 'DESC';
+                          error_log("pivot order test");
+                        }
+
+                        $detectBeaconData = $db_manager->getBeaconDetect($pivot, $order);
+
+
+                        if($order == 'DESC') {
+                          $order_mark = '▼';
+                          $order_reverse = 'ASC';
+                        } else {
+                          $order_mark = '▲';
+                          $order_reverse = 'DESC';
+                        }
+
+
+
+                        if($pivot == 'beacon_no') {
+                          echo "<td style='padding-right:30px'><strong><a href=\"?pivot=beacon_no&order={$order_reverse}\">Beacon Number ".$order_mark."</a></strong></td>";
+                          echo "<td style='padding-right:30px'><strong><a href=\"?pivot=detect_cnt&order=ASC\">Detect Count</a></strong></td>";
+                          echo "<td style='padding-right:30px'><strong><a href=\"?pivot=lastdetect&order=ASC\">Last Detect Time</a></strong></td>";
+                        } else if($pivot == 'detect_cnt') {
+                          echo "<td style='padding-right:30px'><strong><a href=\"?pivot=beacon_no&order=ASC\">Beacon Number</a></strong></td>";
+                          echo "<td style='padding-right:30px'><strong><a href=\"?pivot=detect_cnt&order={$order_reverse}\">Detect Count ".$order_mark."</a></strong></td>";
+                          echo "<td style='padding-right:30px'><strong><a href=\"?pivot=lastdetect&order=ASC\">Last Detect Time</a></strong></td>";
+                        } else {
+                          echo "<td style='padding-right:30px'><strong><a href=\"?pivot=beacon_no&order=ASC\">Beacon Number</a></strong></td>";
+                          echo "<td style='padding-right:30px'><strong><a href=\"?pivot=detect_cnt&order=ASC\">Detect Count</a></strong></td>";
+                          echo "<td style='padding-right:30px'><strong><a href=\"?pivot=lastdetect&order={$order_reverse}\">Last Detect Time ".$order_mark."</a></strong></td>";
+                        }
+
+                      } else {
+                        echo "<td style='padding-right:30px'><strong>Beacon Number</strong></td>";
+                        echo "<td style='padding-right:30px'><strong>Detect Count</strong></td>";
+                        echo "<td style='padding-right:30px'><strong>Last Detect Time</strong></td>";
+                      }
+                    ?>
                   </tr>
                 <?php
-                  $beacon_no = $_GET['beacon_no'];
+
                   if(!$beacon_no) {
 
                       for($i = 0; $i < count($detectBeaconData); $i++) {

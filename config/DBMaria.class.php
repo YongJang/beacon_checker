@@ -64,14 +64,14 @@ class DBMaria extends DB {
     }
 
     /**
-    *  Create beaconposition table if it is not exist
+    *  Create beacon table if it is not exist
     */
-    $result_exist = mysqli_query("SHOW TABLES LIKE 'beaconposition'");
+    $result_exist = mysqli_query("SHOW TABLES LIKE 'beacon'");
     $data = mysqli_fetch_array($result_exist);
     if($data) { // if table is exist
 
     } else {  // if table is not exist
-      $result_createTable = mysqli_query($this->db, 'CREATE TABLE BEACONPOSITION (
+      $result_createTable = mysqli_query($this->db, 'CREATE TABLE BEACON (
         beacon_no INT not NULL PRIMARY KEY,
         file_id VARCHAR(50) not NULL,
         pos_x INT not NULL,
