@@ -19,7 +19,7 @@ class DBMaria extends DB {
   }
 
   function _connect($connection) {
-    require 'DBInitial_test.php';   // MariaDB Initial Path.
+    require 'DBInitial.php';   // MariaDB Initial Path.
     $this->db = mysqli_connect($DB_DNS_NAME . ":" . $DB_PORT_NUM, $DB_ROOT_ID, $DB_ROOT_PWD, $DB_NAME);
 
     if($this->db) {
