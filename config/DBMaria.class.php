@@ -73,7 +73,9 @@ class DBMaria extends DB {
     } else {  // if table is not exist
       $result_createTable = mysqli_query($this->db, 'CREATE TABLE BEACON (
         beacon_no INT not NULL PRIMARY KEY,
-        file_id VARCHAR(50) not NULL,
+        building_name varchar(200) not NULL,
+        floor_num varchar(20) not NULL,
+        file_name VARCHAR(200) not NULL,
         pos_x INT not NULL,
         pos_y INT not NULL
       )');
@@ -123,15 +125,23 @@ class DBMaria extends DB {
     while($row = mysqli_fetch_array($result)) {
       array_push($out, $row);
     }
-
-  //  $out[] = $row;
-
     if(count($out) == 0) {
       error_log("ERROR : getBeaconDetect() No element in the beacondetect table.");
     } else {
       echo $out['beacon_no'];
       return $out;
     }
+  }
+
+  function getBeaconInfo($beacon_no) {
+    $query = "SELECT * FROM beacon WHERE beacon_no = ".$beacon_no;
+    $result = mysqli_query($this->db, $query);
+    $out = array();
+
+    while($row = mysqli_fetch_array($result)) {
+      array_push($out, $row);
+    }
+    return $out;
   }
 }
 ?>

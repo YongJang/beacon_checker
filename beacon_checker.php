@@ -2,8 +2,6 @@
 require './config/config.php';
 $db_manager = new DBMaria();
 $db_manager->checkDBTableSet();
-
-# echo "\n".$detectBeaconData[0]['beacon_no']."\n";
 ?>
 
 <!DOCTYPE html>
@@ -23,6 +21,10 @@ $db_manager->checkDBTableSet();
 
     <!-- Custom styles for this template -->
     <link href="./startbootstrap-simple-sidebar-gh-pages/css/simple-sidebar.css" rel="stylesheet">
+
+    <!-- Bootstrap core JavaScript -->
+    <script src="./startbootstrap-simple-sidebar-gh-pages/vendor/jquery/jquery.min.js"></script>
+    <script src="./startbootstrap-simple-sidebar-gh-pages/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
 </head>
 
@@ -51,7 +53,7 @@ $db_manager->checkDBTableSet();
         <!-- Page Content -->
         <div id="page-content-wrapper">
             <div class="container-fluid">
-                <h1>Hyundai Elevator Beacon Checker</h1>
+                <h1><a href="?" style='color:black'>Hyundai Elevator Beacon Checker</a></h1>
                 <table>
                   <tr>
                     <?php
@@ -105,7 +107,6 @@ $db_manager->checkDBTableSet();
                 <?php
 
                   if(!$beacon_no) {
-
                       for($i = 0; $i < count($detectBeaconData); $i++) {
                         echo "<tr><td id='content-table'><a href=\"?beacon_no={$detectBeaconData[$i]['beacon_no']}\">".htmlspecialchars($detectBeaconData[$i]['beacon_no'])."</a></td id='content-table'><td>".htmlspecialchars($detectBeaconData[$i]['detect_cnt'])."</td><td id='content-table'>".htmlspecialchars($detectBeaconData[$i]['lastdetect'])."</td></tr>";
                       }
@@ -114,9 +115,22 @@ $db_manager->checkDBTableSet();
                       for($i = 0; $i < count($detectBeaconData); $i++) {
                         echo "<tr><td id='content-table'><a href=\"?beacon_no={$detectBeaconData[$i]['beacon_no']}\">".htmlspecialchars($detectBeaconData[$i]['beacon_no'])."</a></td><td id='content-table'>".htmlspecialchars($detectBeaconData[$i]['detect_cnt'])."</td><td id='content-table'>".htmlspecialchars($detectBeaconData[$i]['lastdetect'])."</td></tr>";
                       }
+                      $beacon_position = $db_manager->getBeaconInfo($beacon_no);
+                      if(count($beacon_position) == 0) {
+                        echo "No image is found.";
+                      } else {
+                        echo "<tr><td colspan=3><img id=mapimage style='width:100%;max-width:640px;max-height:640px' src='./res/maps/".$beacon_position[0]['file_name']."'></td></tr>";
+                        $beacon_pos_x = $beacon_position[0]['pos_x'];
+                        $beacon_pos_y = $beacon_position[0]['pos_y'];
+                        echo "<div id='location_area' style='position:absolute; z-index:2; left:0px; top:0px; visibility:hidden'><font id='circle' color='#ff0000' size='15'>●</font></div>";
+                      }
                   }
+
+
                 ?>
+
                 </table>
+
                 <p></p>
                 <a href="#menu-toggle" class="btn btn-secondary" id="menu-toggle">Beacon Menu</a>
             </div>
@@ -126,18 +140,55 @@ $db_manager->checkDBTableSet();
     </div>
     <!-- /#wrapper -->
 
-    <!-- Bootstrap core JavaScript -->
-    <script src="./startbootstrap-simple-sidebar-gh-pages/vendor/jquery/jquery.min.js"></script>
-    <script src="./startbootstrap-simple-sidebar-gh-pages/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
 
     <!-- Menu Toggle Script -->
     <script>
     $("#menu-toggle").click(function(e) {
         e.preventDefault();
         $("#wrapper").toggleClass("toggled");
+
     });
+
+
+    $(document).ready(function() {
+          markPosition();
+          $(window).resize(function(){
+              markPosition();
+          });
+          $('#mapimage').resize(function() {
+              markPosition();
+          });
+    });
+
+    function markPosition() {
+      var is_map_page = false;
+      var beacon_pos_x = 1;
+      var beacon_pos_y = 1;
+      var map_image_top = 0;
+      var map_image_left = 0;
+      var map_image_width = 1;
+      var map_image_height = 1;
+      var menu_toggle_width = 0;
+      <?php
+        if($beacon_pos_x && $beacon_pos_y) {
+          echo "beacon_pos_x = {$beacon_pos_x};";
+          echo "beacon_pos_y = {$beacon_pos_y};";
+          echo "map_image_top = $('#mapimage').offset().top;";
+          echo "map_image_left = $('#mapimage').offset().left;";
+          echo "map_image_width = $('#mapimage').width();";
+          echo "map_image_height = $('#mapimage').height();";
+          echo "if($('#wrapper').hasClass('toggled')) {";
+          echo "menu_toggle_width = $('#sidebar-wrapper').width() * -1;";
+          echo "}";
+        }
+      ?>
+
+      var pos_x = menu_toggle_width + map_image_left + (beacon_pos_x * map_image_width / 1200);
+      var pos_y = map_image_top + (beacon_pos_y * map_image_height / 1360);
+      $('#location_area').css({left:pos_x,top:pos_y,visibility:'initial'});
+      $('#circle').css({'font-size':(map_image_width/20)});
+    }
     </script>
-
 </body>
-
 </html>
