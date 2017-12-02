@@ -55,7 +55,7 @@ class DBMaria extends DB {
     if($data) { // if table is exist
 
     } else {  // if table is not exist
-      $result_createTable = mysqli_query($this->db, 'CREATE TABLE BEACONDETECT (
+      $result_createTable = mysqli_query($this->db, 'CREATE TABLE beacondetect (
         beacon_no INT not NULL PRIMARY KEY,
         detect_cnt BIGINT unsigned,
         lastdetect DATETIME
@@ -71,7 +71,7 @@ class DBMaria extends DB {
     if($data) { // if table is exist
 
     } else {  // if table is not exist
-      $result_createTable = mysqli_query($this->db, 'CREATE TABLE BEACON (
+      $result_createTable = mysqli_query($this->db, 'CREATE TABLE beacon (
         beacon_no INT not NULL PRIMARY KEY,
         building_name varchar(200) not NULL,
         floor_num varchar(20) not NULL,
