@@ -85,20 +85,24 @@ $db_manager->checkDBTableSet();
 
                         if($pivot == 'beacon_no') {
                           echo "<td style='padding-right:30px'><strong><a href=\"?pivot=beacon_no&order={$order_reverse}\">Beacon Number ".$order_mark."</a></strong></td>";
+                          echo "<td style='padding-right:30px'><strong>Floor</strong></td>";
                           echo "<td style='padding-right:30px'><strong><a href=\"?pivot=detect_cnt&order=ASC\">Detect Count</a></strong></td>";
                           echo "<td style='padding-right:30px'><strong><a href=\"?pivot=lastdetect&order=ASC\">Last Detect Time</a></strong></td>";
                         } else if($pivot == 'detect_cnt') {
                           echo "<td style='padding-right:30px'><strong><a href=\"?pivot=beacon_no&order=ASC\">Beacon Number</a></strong></td>";
+                          echo "<td style='padding-right:30px'><strong>Floor</strong></td>";
                           echo "<td style='padding-right:30px'><strong><a href=\"?pivot=detect_cnt&order={$order_reverse}\">Detect Count ".$order_mark."</a></strong></td>";
                           echo "<td style='padding-right:30px'><strong><a href=\"?pivot=lastdetect&order=ASC\">Last Detect Time</a></strong></td>";
                         } else {
                           echo "<td style='padding-right:30px'><strong><a href=\"?pivot=beacon_no&order=ASC\">Beacon Number</a></strong></td>";
+                          echo "<td style='padding-right:30px'><strong>Floor</strong></td>";
                           echo "<td style='padding-right:30px'><strong><a href=\"?pivot=detect_cnt&order=ASC\">Detect Count</a></strong></td>";
                           echo "<td style='padding-right:30px'><strong><a href=\"?pivot=lastdetect&order={$order_reverse}\">Last Detect Time ".$order_mark."</a></strong></td>";
                         }
 
                       } else {
                         echo "<td style='padding-right:30px'><strong>Beacon Number</strong></td>";
+                        echo "<td style='padding-right:30px'><strong>Floor</strong></td>";
                         echo "<td style='padding-right:30px'><strong>Detect Count</strong></td>";
                         echo "<td style='padding-right:30px'><strong>Last Detect Time</strong></td>";
                       }
@@ -108,7 +112,9 @@ $db_manager->checkDBTableSet();
 
                   if(!$beacon_no) {
                       for($i = 0; $i < count($detectBeaconData); $i++) {
-                        echo "<tr><td id='content-table'><a href=\"?beacon_no={$detectBeaconData[$i]['beacon_no']}\">".htmlspecialchars($detectBeaconData[$i]['beacon_no'])."</a></td id='content-table'><td>".htmlspecialchars($detectBeaconData[$i]['detect_cnt'])."</td><td id='content-table'>".htmlspecialchars($detectBeaconData[$i]['lastdetect'])."</td></tr>";
+                        $current_beacon_num = $detectBeaconData[$i]['beacon_no'];
+                        $beacon_information = $db_manager->getBeaconInfo($current_beacon_num, 'floor_num');
+                        echo "<tr><td id='content-table'><a href=\"?beacon_no={$detectBeaconData[$i]['beacon_no']}\">".htmlspecialchars($detectBeaconData[$i]['beacon_no'])."</a></td><td id='content-table'>".htmlspecialchars($beacon_information[0]['floor_num'])."</td><td id='content-table'>".htmlspecialchars($detectBeaconData[$i]['detect_cnt'])."</td><td id='content-table'>".htmlspecialchars($detectBeaconData[$i]['lastdetect'])."</td></tr>";
                       }
                   } else {
                     $detectBeaconData = $db_manager->getBeaconDetect("beacon_no", "ASC", $beacon_no);
@@ -119,7 +125,7 @@ $db_manager->checkDBTableSet();
                       if(count($beacon_position) == 0) {
                         echo "No image is found.";
                       } else {
-                        echo "<tr><td colspan=3><img id=mapimage style='width:100%;max-width:640px;max-height:640px' src='./res/maps/".$beacon_position[0]['file_name']."'></td></tr>";
+                        echo "<tr><td colspan=3><img id=mapimage style='width:100%;max-width:640px;max-height:640px' src='./res/maps/temp/".$beacon_position[0]['file_name']."'></td></tr>";
                         $beacon_pos_x = $beacon_position[0]['pos_x'];
                         $beacon_pos_y = $beacon_position[0]['pos_y'];
                         echo "<div id='location_area' style='position:absolute; z-index:2; left:0px; top:0px; visibility:hidden'><font id='circle' color='#ff0000' size='15'>●</font></div>";

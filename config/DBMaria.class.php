@@ -19,7 +19,7 @@ class DBMaria extends DB {
   }
 
   function _connect($connection) {
-    require 'DBInitial.php';   // MariaDB Initial Path.
+    require 'DBInitial_test.php';   // MariaDB Initial Path.
     $this->db = mysqli_connect($DB_DNS_NAME . ":" . $DB_PORT_NUM, $DB_ROOT_ID, $DB_ROOT_PWD, $DB_NAME);
 
     if($this->db) {
@@ -55,7 +55,7 @@ class DBMaria extends DB {
     if($data) { // if table is exist
 
     } else {  // if table is not exist
-      $result_createTable = mysqli_query($this->db, 'CREATE TABLE BEACONDETECT (
+      $result_createTable = mysqli_query($this->db, 'CREATE TABLE beacondetect (
         beacon_no INT not NULL PRIMARY KEY,
         detect_cnt BIGINT unsigned,
         lastdetect DATETIME
@@ -71,7 +71,7 @@ class DBMaria extends DB {
     if($data) { // if table is exist
 
     } else {  // if table is not exist
-      $result_createTable = mysqli_query($this->db, 'CREATE TABLE BEACON (
+      $result_createTable = mysqli_query($this->db, 'CREATE TABLE beacon (
         beacon_no INT not NULL PRIMARY KEY,
         building_name varchar(200) not NULL,
         floor_num varchar(20) not NULL,
@@ -133,8 +133,22 @@ class DBMaria extends DB {
     }
   }
 
-  function getBeaconInfo($beacon_no) {
-    $query = "SELECT * FROM beacon WHERE beacon_no = ".$beacon_no;
+  function getBeaconInfo($beacon_no=NULL, $output=NULL) {
+    if(!$beacon_no && !$output) {
+      $query = "SELECT * FROM beacon";
+    } else {
+      $query = "SELECT ";
+      if($output) {
+        $query = $query.$output." ";
+      } else {
+        $query = $query." * ";
+      }
+      $query = $query." FROM beacon";
+      if($beacon_no) {
+        $query = $query." WHERE beacon_no = ".$beacon_no;
+      }
+    }
+
     $result = mysqli_query($this->db, $query);
     $out = array();
 
