@@ -39,6 +39,7 @@ $db_manager->checkDBTableSet();
                     <a href="?">
                         Dashboard
                     </a>
+                <!-- Floor List -->
                 </li>
                 <?php
                   $detectBeaconData = $db_manager->getBeaconDetect();
@@ -58,63 +59,27 @@ $db_manager->checkDBTableSet();
                   <tr>
                     <?php
                       $beacon_no = $_GET['beacon_no'];
-                      if(!$beacon_no) {
-                        $pivot = $_GET['pivot'];
-                        $order = $_GET['order'];
-                        $order_reverse;
-
-                        if(!$pivot && !$order) {
-                          $pivot = 'beacon_no';
-                          $order = 'ASC';
-                          $order_reverse = 'DESC';
-                          error_log("pivot order test");
-                        }
-
-                        $detectBeaconData = $db_manager->getBeaconDetect($pivot, $order);
-
-
-                        if($order == 'DESC') {
-                          $order_mark = '▼';
-                          $order_reverse = 'ASC';
-                        } else {
-                          $order_mark = '▲';
-                          $order_reverse = 'DESC';
-                        }
-
-
-
-                        if($pivot == 'beacon_no') {
-                          echo "<td style='padding-right:30px'><strong><a href=\"?pivot=beacon_no&order={$order_reverse}\">Beacon Number ".$order_mark."</a></strong></td>";
-                          echo "<td style='padding-right:30px'><strong>Floor</strong></td>";
-                          echo "<td style='padding-right:30px'><strong><a href=\"?pivot=detect_cnt&order=ASC\">Detect Count</a></strong></td>";
-                          echo "<td style='padding-right:30px'><strong><a href=\"?pivot=lastdetect&order=ASC\">Last Detect Time</a></strong></td>";
-                        } else if($pivot == 'detect_cnt') {
-                          echo "<td style='padding-right:30px'><strong><a href=\"?pivot=beacon_no&order=ASC\">Beacon Number</a></strong></td>";
-                          echo "<td style='padding-right:30px'><strong>Floor</strong></td>";
-                          echo "<td style='padding-right:30px'><strong><a href=\"?pivot=detect_cnt&order={$order_reverse}\">Detect Count ".$order_mark."</a></strong></td>";
-                          echo "<td style='padding-right:30px'><strong><a href=\"?pivot=lastdetect&order=ASC\">Last Detect Time</a></strong></td>";
-                        } else {
-                          echo "<td style='padding-right:30px'><strong><a href=\"?pivot=beacon_no&order=ASC\">Beacon Number</a></strong></td>";
-                          echo "<td style='padding-right:30px'><strong>Floor</strong></td>";
-                          echo "<td style='padding-right:30px'><strong><a href=\"?pivot=detect_cnt&order=ASC\">Detect Count</a></strong></td>";
-                          echo "<td style='padding-right:30px'><strong><a href=\"?pivot=lastdetect&order={$order_reverse}\">Last Detect Time ".$order_mark."</a></strong></td>";
-                        }
-
-                      } else {
-                        echo "<td style='padding-right:30px'><strong>Beacon Number</strong></td>";
-                        echo "<td style='padding-right:30px'><strong>Floor</strong></td>";
-                        echo "<td style='padding-right:30px'><strong>Detect Count</strong></td>";
-                        echo "<td style='padding-right:30px'><strong>Last Detect Time</strong></td>";
-                      }
+                      # print table header
+                      $pivot = $_GET['pivot'];
+                      $order = $_GET['order'];
+                      printHeader($pivot, $order, $beacon_no);
                     ?>
                   </tr>
                 <?php
+                  if(!$pivot) {
+                      $pivot = 'beacon_no';
+                  }
+                  if(!$order) {
+                      $order = 'ASC';
+                  }
+
+                  $detectBeaconData = $db_manager->getBeaconDetect($pivot, $order);
 
                   if(!$beacon_no) {
                       for($i = 0; $i < count($detectBeaconData); $i++) {
                         $current_beacon_num = $detectBeaconData[$i]['beacon_no'];
                         $beacon_information = $db_manager->getBeaconInfo($current_beacon_num, 'floor_num');
-                        echo "<tr><td id='content-table'><a href=\"?beacon_no={$detectBeaconData[$i]['beacon_no']}\">".htmlspecialchars($detectBeaconData[$i]['beacon_no'])."</a></td><td id='content-table'>".htmlspecialchars($beacon_information[0]['floor_num'])."</td><td id='content-table'>".htmlspecialchars($detectBeaconData[$i]['detect_cnt'])."</td><td id='content-table'>".htmlspecialchars($detectBeaconData[$i]['lastdetect'])."</td></tr>";
+                        echo "<tr><td id='content-table'><a href=\"?beacon_no={$detectBeaconData[$i]['beacon_no']}\">".htmlspecialchars($detectBeaconData[$i]['beacon_no'])."</a></td><td id='content-table'><a href=\"?floor_num={$beacon_information[0]['floor_num']}\">".htmlspecialchars($beacon_information[0]['floor_num'])."</td><td id='content-table'>".htmlspecialchars($detectBeaconData[$i]['detect_cnt'])."</td><td id='content-table'>".htmlspecialchars($detectBeaconData[$i]['lastdetect'])."</td></tr>";
                       }
                   } else {
                     $detectBeaconData = $db_manager->getBeaconDetect("beacon_no", "ASC", $beacon_no);
@@ -138,7 +103,7 @@ $db_manager->checkDBTableSet();
                 </table>
 
                 <p></p>
-                <a href="#menu-toggle" class="btn btn-secondary" id="menu-toggle">Beacon Menu</a>
+                <a href="#menu-toggle" class="btn btn-secondary" id="menu-toggle">Show Floor</a>
             </div>
         </div>
         <!-- /#page-content-wrapper -->
@@ -176,6 +141,7 @@ $db_manager->checkDBTableSet();
       var map_image_width = 1;
       var map_image_height = 1;
       var menu_toggle_width = 0;
+      
       <?php
         if($beacon_pos_x && $beacon_pos_y) {
           echo "beacon_pos_x = {$beacon_pos_x};";
@@ -198,3 +164,48 @@ $db_manager->checkDBTableSet();
     </script>
 </body>
 </html>
+
+<?php
+function printHeader($pivot="beacon_no", $order="ASC", $beacon_no=NULL) {
+  if(!$beacon_no) {
+    $order_reverse;
+
+    if(!$pivot && !$order) {
+      $pivot = 'beacon_no';
+      $order = 'ASC';
+      $order_reverse = 'DESC';
+    }
+
+    if($order == 'DESC') {
+      $order_mark = '▼';
+      $order_reverse = 'ASC';
+    } else {
+      $order_mark = '▲';
+      $order_reverse = 'DESC';
+    }
+
+    if($pivot == 'beacon_no') {
+      echo "<td style='padding-right:30px'><strong><a href=\"?pivot=beacon_no&order={$order_reverse}\">Beacon Number ".$order_mark."</a></strong></td>";
+      echo "<td style='padding-right:30px'><strong>Floor</strong></td>";
+      echo "<td style='padding-right:30px'><strong><a href=\"?pivot=detect_cnt&order=ASC\">Detect Count</a></strong></td>";
+      echo "<td style='padding-right:30px'><strong><a href=\"?pivot=lastdetect&order=ASC\">Last Detect Time</a></strong></td>";
+    } else if($pivot == 'detect_cnt') {
+      echo "<td style='padding-right:30px'><strong><a href=\"?pivot=beacon_no&order=ASC\">Beacon Number</a></strong></td>";
+      echo "<td style='padding-right:30px'><strong>Floor</strong></td>";
+      echo "<td style='padding-right:30px'><strong><a href=\"?pivot=detect_cnt&order={$order_reverse}\">Detect Count ".$order_mark."</a></strong></td>";
+      echo "<td style='padding-right:30px'><strong><a href=\"?pivot=lastdetect&order=ASC\">Last Detect Time</a></strong></td>";
+    } else {
+      echo "<td style='padding-right:30px'><strong><a href=\"?pivot=beacon_no&order=ASC\">Beacon Number</a></strong></td>";
+      echo "<td style='padding-right:30px'><strong>Floor</strong></td>";
+      echo "<td style='padding-right:30px'><strong><a href=\"?pivot=detect_cnt&order=ASC\">Detect Count</a></strong></td>";
+      echo "<td style='padding-right:30px'><strong><a href=\"?pivot=lastdetect&order={$order_reverse}\">Last Detect Time ".$order_mark."</a></strong></td>";
+    }
+
+  } else {
+    echo "<td style='padding-right:30px'><strong>Beacon Number</strong></td>";
+    echo "<td style='padding-right:30px'><strong>Floor</strong></td>";
+    echo "<td style='padding-right:30px'><strong>Detect Count</strong></td>";
+    echo "<td style='padding-right:30px'><strong>Last Detect Time</strong></td>";
+  }
+}
+?>
