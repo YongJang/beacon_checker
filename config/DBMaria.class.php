@@ -19,7 +19,7 @@ class DBMaria extends DB {
   }
 
   function _connect($connection) {
-    require 'DBInitial_test.php';   // MariaDB Initial Path.
+    require 'DBInitial.php';   // MariaDB Initial Path.
     $this->db = mysqli_connect($DB_DNS_NAME . ":" . $DB_PORT_NUM, $DB_ROOT_ID, $DB_ROOT_PWD, $DB_NAME);
 
     if($this->db) {
@@ -148,6 +148,18 @@ class DBMaria extends DB {
         $query = $query." WHERE beacon_no = ".$beacon_no;
       }
     }
+
+    $result = mysqli_query($this->db, $query);
+    $out = array();
+
+    while($row = mysqli_fetch_array($result)) {
+      array_push($out, $row);
+    }
+    return $out;
+  }
+
+  function getBeaconInfoByFloor($floor_num) {
+    $query = "SELECT * FROM beacon WHERE floor_num = ".$floor_num;
 
     $result = mysqli_query($this->db, $query);
     $out = array();

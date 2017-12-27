@@ -42,9 +42,9 @@ $db_manager->checkDBTableSet();
                 <!-- Floor List -->
                 </li>
                 <?php
-                  $detectBeaconData = $db_manager->getBeaconDetect();
-                  for($i = 0; $i < count($detectBeaconData); $i++) {
-                    echo "<li><a href=\"?beacon_no={$detectBeaconData[$i]['beacon_no']}\">".htmlspecialchars($detectBeaconData[$i]['beacon_no'])."</a></li>";
+
+                  for($i = 0; $i < 11; $i++) {
+                    echo "<li><a href=\"?floor_num=".($i + 1)."\">".($i + 1)."</a></li>";
                   }
                 ?>
             </ul>
@@ -59,10 +59,11 @@ $db_manager->checkDBTableSet();
                   <tr>
                     <?php
                       $beacon_no = $_GET['beacon_no'];
+                      $floor_num = $_GET['floor_num'];
                       # print table header
                       $pivot = $_GET['pivot'];
                       $order = $_GET['order'];
-                      printHeader($pivot, $order, $beacon_no);
+                      printHeader($pivot, $order, $beacon_no, $floor_num);
                     ?>
                   </tr>
                 <?php
@@ -75,13 +76,13 @@ $db_manager->checkDBTableSet();
 
                   $detectBeaconData = $db_manager->getBeaconDetect($pivot, $order);
 
-                  if(!$beacon_no) {
+                  if(!$beacon_no && !$floor_num) {
                       for($i = 0; $i < count($detectBeaconData); $i++) {
                         $current_beacon_num = $detectBeaconData[$i]['beacon_no'];
                         $beacon_information = $db_manager->getBeaconInfo($current_beacon_num, 'floor_num');
                         echo "<tr><td id='content-table'><a href=\"?beacon_no={$detectBeaconData[$i]['beacon_no']}\">".htmlspecialchars($detectBeaconData[$i]['beacon_no'])."</a></td><td id='content-table'><a href=\"?floor_num={$beacon_information[0]['floor_num']}\">".htmlspecialchars($beacon_information[0]['floor_num'])."</td><td id='content-table'>".htmlspecialchars($detectBeaconData[$i]['detect_cnt'])."</td><td id='content-table'>".htmlspecialchars($detectBeaconData[$i]['lastdetect'])."</td></tr>";
                       }
-                  } else {
+                  } else if($beacon_no) {
                     $detectBeaconData = $db_manager->getBeaconDetect("beacon_no", "ASC", $beacon_no);
                       for($i = 0; $i < count($detectBeaconData); $i++) {
                         echo "<tr><td id='content-table'><a href=\"?beacon_no={$detectBeaconData[$i]['beacon_no']}\">".htmlspecialchars($detectBeaconData[$i]['beacon_no'])."</a></td><td id='content-table'>".htmlspecialchars($detectBeaconData[$i]['detect_cnt'])."</td><td id='content-table'>".htmlspecialchars($detectBeaconData[$i]['lastdetect'])."</td></tr>";
@@ -90,20 +91,33 @@ $db_manager->checkDBTableSet();
                       if(count($beacon_position) == 0) {
                         echo "No image is found.";
                       } else {
-                        echo "<tr><td colspan=3><img id=mapimage style='width:100%;max-width:640px;max-height:640px' src='./res/maps/temp/".$beacon_position[0]['file_name']."'></td></tr>";
+                        // echo "<tr><td colspan=3><canvas id=map-canvas style='width:100%;'></canvas></td></tr>";
+                        echo "<tr><td colspan=3><img id=mapimage style='width:100%;max-width:500px;max-height:500px' src='./res/maps/temp/".$beacon_position[0]['file_name']."'></td></tr>";
                         $beacon_pos_x = $beacon_position[0]['pos_x'];
                         $beacon_pos_y = $beacon_position[0]['pos_y'];
                         echo "<div id='location_area' style='position:absolute; z-index:2; left:0px; top:0px; visibility:hidden'><font id='circle' color='#ff0000' size='15'>●</font></div>";
                       }
+                  } else if($floor_num){
+                    $floorBeaconData = $db_manager->getBeaconInfoByFloor($floor_num);
+
+                    for($j = 0; $j < count($floorBeaconData); $j++) {
+                      $detectBeaconData = $db_manager->getBeaconDetect("beacon_no", "ASC", $floorBeaconData[$j]['beacon_no']);
+                      for($i = 0; $i < count($detectBeaconData); $i++) {
+                        echo "<tr><td id='content-table'><a href=\"?beacon_no={$detectBeaconData[$i]['beacon_no']}\">".htmlspecialchars($detectBeaconData[$i]['beacon_no'])."</a></td><td id='content-table'>".htmlspecialchars($floorBeaconData[$j]['floor_num'])."</td><td id='content-table'>".htmlspecialchars($detectBeaconData[$i]['detect_cnt'])."</td><td id='content-table'>".htmlspecialchars($detectBeaconData[$i]['lastdetect'])."</td></tr>";
+                      }
+                    }
                   }
-
-
                 ?>
 
                 </table>
-
+                <p>
                 <p></p>
                 <a href="#menu-toggle" class="btn btn-secondary" id="menu-toggle">Show Floor</a>
+                <p>
+                  <span></span>
+                  <span>&nbsp;</span>
+                </p>
+
             </div>
         </div>
         <!-- /#page-content-wrapper -->
@@ -141,7 +155,12 @@ $db_manager->checkDBTableSet();
       var map_image_width = 1;
       var map_image_height = 1;
       var menu_toggle_width = 0;
-      
+
+      var container_fluid_left = $('.container-fluid').offset().left;
+      var container_fluid_padding_left_str = $('.container-fluid').css('padding-left');
+      var container_fluid_padding_left = parseFloat(container_fluid_padding_left_str.substring(0,2));
+      var sidebar_wrapper_width = $('#sidebar-wrapper').width();
+
       <?php
         if($beacon_pos_x && $beacon_pos_y) {
           echo "beacon_pos_x = {$beacon_pos_x};";
@@ -156,18 +175,47 @@ $db_manager->checkDBTableSet();
         }
       ?>
 
-      var pos_x = menu_toggle_width + map_image_left + (beacon_pos_x * map_image_width / 1200);
-      var pos_y = map_image_top + (beacon_pos_y * map_image_height / 1360);
+      var pos_x = menu_toggle_width + map_image_left + (beacon_pos_x * map_image_width / 500);
+      var pos_y = map_image_top + (beacon_pos_y * map_image_height / 500);
       $('#location_area').css({left:pos_x,top:pos_y,visibility:'initial'});
       $('#circle').css({'font-size':(map_image_width/20)});
+
+      /*
+      var canvas = document.getElementById("map-canvas");
+      $("#map-canvas").attr("width", "640px");
+      $("#map-canvas").attr("height", "640px");
+
+      var context = canvas.getContext("2d");
+      var x = 0;
+      var y = 0;
+      var width = 640;
+      var height = 640;
+      var ImageObj = new Image();
+
+      ImageObj.onload = function() {
+        context.drawImage(ImageObj, x, y, width, height);
+      };
+      ImageObj.src = "./res/maps/temp/01F.png";
+      */
+
+      $( "#mapimage" ).mousemove(function( event ) {
+        var pageCoords = "( " + event.pageX + ", " + event.pageY + " )";
+        var clientCoords = "( " + (parseFloat(event.clientX) - container_fluid_left - container_fluid_padding_left - sidebar_wrapper_width) + ", " + (parseFloat(event.clientY) - map_image_top) + " )";
+        $( "span:first" ).text( "( event.pageX, event.pageY ) : " + pageCoords );
+        $( "span:last" ).text( "( event.imageX, event.imageY ) : " + clientCoords );
+      });
     }
+
+
+
+
     </script>
 </body>
 </html>
 
 <?php
-function printHeader($pivot="beacon_no", $order="ASC", $beacon_no=NULL) {
-  if(!$beacon_no) {
+function printHeader($pivot="beacon_no", $order="ASC", $beacon_no=NULL, $floor_num=NULL) {
+  if(!$beacon_no && !$floor_num) {
     $order_reverse;
 
     if(!$pivot && !$order) {
